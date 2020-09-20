@@ -2,6 +2,7 @@
 
 #include <concepts>
 #include <exception>
+#include <type_traits>
 #include <utility>
 
 template<std::invocable CallableType>
@@ -12,12 +13,14 @@ class OnScopeExit {
             active = false;
         }
 
-        OnScopeExit(CallableType exit_function):
-            exit_function(std::move(exit_function)) {}
+        OnScopeExit(CallableType exit_function)
+            noexcept(std::is_move_constructible<CallableType>::value):
+                exit_function(std::move(exit_function)) {}
 
         OnScopeExit(OnScopeExit &&other)
+            noexcept(std::is_move_constructible<CallableType>::value):
+                exit_function(std::move(other.exit_function))
         {
-            exit_function = std::move(other.exit_function);
             other.active = false;
         }
 
@@ -28,6 +31,7 @@ class OnScopeExit {
         OnScopeExit(const OnScopeExit&) = delete;
 
         ~OnScopeExit()
+            noexcept(std::is_nothrow_invocable<CallableType>::value)
         {
             if (active)
                 exit_function();
