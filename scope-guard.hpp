@@ -1,6 +1,7 @@
 #pragma once
 
 #include <concepts>
+#include <exception>
 #include <utility>
 
 template<std::invocable CallableType>
@@ -32,7 +33,20 @@ class OnScopeExit {
                 exit_function();
         }
 
-    private:
+    protected:
         bool active = true;
         CallableType exit_function;
+};
+
+template<std::invocable CallableType>
+class OnScopeSuccess: OnScopeExit<CallableType> {
+    public:
+        OnScopeSuccess(CallableType exit_function):
+            OnScopeExit<CallableType>(std::move(exit_function)) {}
+
+        ~OnScopeSuccess() noexcept
+        {
+            if (std::uncaught_exceptions > 0)
+                this->active = false;
+        }
 };
