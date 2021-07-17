@@ -19,6 +19,13 @@ void throwing_function()
     throw std::runtime_error("Dummy exception");
 }
 
+void successful_function()
+{
+    OnScopeSuccess on_scope_success = []() {
+        std::cout << "This function exited successfully\n";
+    };
+}
+
 int main()
 {
     const OnScopeExit on_scope_exit = []() {
@@ -27,6 +34,7 @@ int main()
 
     const auto moved_scope_exit = move_scope_guard();
 
+    successful_function();
     try {
         throwing_function();
     }

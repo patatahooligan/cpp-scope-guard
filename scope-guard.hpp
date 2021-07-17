@@ -50,7 +50,7 @@ class OnScopeSuccess: OnScopeExit<CallableType> {
 
         ~OnScopeSuccess() noexcept
         {
-            if (std::uncaught_exceptions > 0)
+            if (std::uncaught_exceptions() > 0)
                 this->active = false;
         }
 };
