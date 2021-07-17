@@ -8,7 +8,7 @@
 template<std::invocable CallableType>
 class OnScopeExit {
     public:
-        void release() const noexcept
+        void release() noexcept
         {
             active = false;
         }
@@ -53,4 +53,26 @@ class OnScopeSuccess: OnScopeExit<CallableType> {
             if (std::uncaught_exceptions() > 0)
                 this->active = false;
         }
+};
+
+template<std::invocable CallableType>
+class OnScopeFailure: OnScopeExit<CallableType> {
+    public:
+        OnScopeFailure(CallableType exit_function):
+            OnScopeExit<CallableType>(std::move(exit_function))
+        {
+            initial_uncaught_exceptions = std::uncaught_exceptions();
+        }
+
+        ~OnScopeFailure() noexcept
+        {
+            // If we are leaving the scope with the same number of live
+            // exceptions as when we created this object, we have not
+            // failed and should disable this.
+            if (std::uncaught_exceptions() == initial_uncaught_exceptions)
+                this->active = false;
+        }
+
+    private:
+        int initial_uncaught_exceptions;
 };

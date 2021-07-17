@@ -16,6 +16,9 @@ void throwing_function()
     OnScopeSuccess on_scope_success = []() {
         std::cout << "This should never print";
     };
+    OnScopeFailure on_scope_failure = []() {
+        std::cout << "This function threw\n";
+    };
     throw std::runtime_error("Dummy exception");
 }
 
@@ -23,6 +26,9 @@ void successful_function()
 {
     OnScopeSuccess on_scope_success = []() {
         std::cout << "This function exited successfully\n";
+    };
+    OnScopeFailure on_scope_failure = []() {
+        std::cout << "This should never print\n";
     };
 }
 
@@ -35,6 +41,7 @@ int main()
     const auto moved_scope_exit = move_scope_guard();
 
     successful_function();
+    std::cout << "\n";
     try {
         throwing_function();
     }
@@ -42,6 +49,7 @@ int main()
     {
         // noop
     }
+    std::cout << "\n";
 
     std::cout << "Main is about to exit\n";
 }
