@@ -14,11 +14,11 @@ class OnScopeExit {
         }
 
         OnScopeExit(CallableType exit_function)
-            noexcept(std::is_move_constructible<CallableType>::value):
+            noexcept(std::is_nothrow_move_constructible<CallableType>::value):
                 exit_function(std::move(exit_function)) {}
 
         OnScopeExit(OnScopeExit &&other)
-            noexcept(std::is_move_constructible<CallableType>::value):
+            noexcept(std::is_nothrow_move_constructible<CallableType>::value):
                 exit_function(std::move(other.exit_function))
         {
             other.active = false;
